@@ -1,1 +1,1 @@
-web: gunicorn roi.wsgi --log-file -
+web: gunicorn roi.wsgi:application --log-file -
