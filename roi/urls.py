@@ -16,8 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from roi_app import api
+
+
+router = routers.DefaultRouter()
+router.register(r'leads', api.LeadApi)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(routers.urls)),
+    path('v1/', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
