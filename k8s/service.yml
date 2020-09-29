@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: roi
+  namespace: ote
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:412729474065:certificate/d99fe5ab-caca-4255-a4ca-329b28350815
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+  labels:
+    name: roi
+spec:
+  type: LoadBalancer
+  selector:
+    app: roi
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 8000

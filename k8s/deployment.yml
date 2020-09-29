@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roi
+  namespace: ote
+spec:
+  selector:
+    matchLabels:
+      app: roi
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: "25%"
+      maxUnavailable: "25%"
+  revisionHistoryLimit: 5
+  template:
+    metadata:
+      labels:
+        app: roi
+    spec:
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: shared-data
+        emptyDir: {}
+      - name: socket
+        hostPath:
+          path: /var/run/docker.sock
+      containers:
+      - name: roi
+       # image: 412729474065.dkr.ecr.us-east-1.amazonaws.com/orders/invoices-api:v{{VERSION}}
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "./invoices-api/manage.py collectstatic --noinput"]
+        ports:
+          - containerPort: 8000
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "300m"
+          limits:
+            memory: "1024Mi"
+            cpu: "500m"
+        envFrom:
+          - secretRef:
+              name: roi
+        volumeMounts:
+          - name: shared-data
+           # mountPath: /app/invoices-api/frontend/static
+      - name: roi-api-nginx
+       # image: 412729474065.dkr.ecr.us-east-1.amazonaws.com/django-nginx-sigquit:latest
+        ports:
+          - containerPort: 80
+
